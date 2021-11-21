@@ -1,26 +1,61 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from 'src/posts/entities/post.entity';
+import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { Comment } from './entities/comment.entity';
 
 @Injectable()
 export class CommentsService {
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
+  constructor(
+    @InjectRepository(Comment)
+    private readonly commentsRepository: Repository<Comment>,
+    @InjectRepository(Post)
+    private readonly postsRepository: Repository<Post>,
+  ) {}
+
+  async create(createCommentDto: CreateCommentDto): Promise<Comment> {
+    const createdAt = new Date();
+    const comment = this.commentsRepository.create({
+      createdAt,
+      ...createCommentDto,
+    });
+    const { postId } = createCommentDto;
+    let post = await this.postsRepository.findOne(postId);
+    post = { ...post, comments: [comment, ...post.comments] };
+
+    this.postsRepository.update(postId, post);
+    this.postsRepository.save(post);
+    return this.commentsRepository.save(comment);
   }
 
-  findAll() {
-    return `This action returns all comments`;
+  findAll(): Promise<Comment[]> {
+    return this.commentsRepository.find();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} comment`;
+  findOne(id: string): Promise<Comment> {
+    try {
+      const comment = this.commentsRepository.findOneOrFail(id);
+      return comment;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
-  update(id: string, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  async update(
+    id: string,
+    updateCommentDto: UpdateCommentDto,
+  ): Promise<Comment> {
+    let comment = await this.findOne(id);
+    comment = { ...comment, ...updateCommentDto };
+
+    return this.commentsRepository.save(comment);
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} comment`;
+  async remove(id: string): Promise<Comment> {
+    const comment = await this.findOne(id);
+
+    return this.commentsRepository.remove(comment);
   }
 }

@@ -1,4 +1,5 @@
 export class CreatePostDto {
-  image: Buffer;
+  images: string[];
   description: string;
+  userId: string;
 }
