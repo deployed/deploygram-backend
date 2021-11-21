@@ -15,13 +15,13 @@ export class Post {
   id: string;
 
   @Column()
-  userId: number;
+  userId: string;
 
   @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
-  @Column()
-  image: string; // url
+  @Column('simple-array')
+  images: string[]; // urls
 
   @Column()
   description: string;
