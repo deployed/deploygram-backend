@@ -24,15 +24,6 @@ $ yarn start:dev
 $ yarn start:prod
 ```
 
-## Test
+## API
+/api - Swagger
 
-```bash
-# unit tests
-$ yarn test
-
-# e2e tests
-$ yarn test:e2e
-
-# test coverage
-$ yarn test:cov
-```
