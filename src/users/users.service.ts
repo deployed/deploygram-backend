@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from 'src/posts/entities/post.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,12 +11,14 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Post)
+    private readonly postsRepository: Repository<Post>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.usersRepository.create({
       posts: [],
-      ...createUserDto,
+      ...(createUserDto || {}),
     });
     return this.usersRepository.save(user);
   }
@@ -36,7 +39,7 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     let user = await this.findOne(id);
 
-    user = { ...user, ...updateUserDto };
+    user = { ...user, ...(updateUserDto || {}) };
 
     return this.usersRepository.save(user);
   }
@@ -45,5 +48,12 @@ export class UsersService {
     const user = await this.findOne(id);
 
     return this.usersRepository.remove(user);
+  }
+
+  async getUserPosts(userId: string): Promise<Post[]> {
+    return this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.userId LIKE :userId', { userId })
+      .getMany();
   }
 }

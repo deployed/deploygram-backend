@@ -7,25 +7,17 @@ import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
+import { StoriesModule } from './stories/stories.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_HOST,
-      port: parseInt(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DATABASE,
-      autoLoadEntities: true,
-      synchronize: true, // only for dev
-      entities: ['entity/**/*.js'],
-    }),
+    TypeOrmModule.forRoot(),
     UsersModule,
     PostsModule,
     CommentsModule,
     LikesModule,
+    StoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

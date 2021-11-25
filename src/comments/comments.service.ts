@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/posts/entities/post.entity';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -13,6 +14,8 @@ export class CommentsService {
     private readonly commentsRepository: Repository<Comment>,
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async create(createCommentDto: CreateCommentDto): Promise<Comment> {
@@ -21,12 +24,18 @@ export class CommentsService {
       createdAt,
       ...createCommentDto,
     });
-    const { postId } = createCommentDto;
-    let post = await this.postsRepository.findOne(postId);
-    post = { ...post, comments: [comment, ...post.comments] };
+    const { postId, userId } = createCommentDto;
 
+    let post = await this.postsRepository.findOne(postId);
+    post = { ...post, comments: [comment, ...(post.comments || [])] };
     this.postsRepository.update(postId, post);
     this.postsRepository.save(post);
+
+    let user = await this.usersRepository.findOne(userId);
+    user = { ...user, comments: [comment, ...(user.comments || [])] };
+    this.usersRepository.update(userId, user);
+    this.usersRepository.save(user);
+
     return this.commentsRepository.save(comment);
   }
 
@@ -48,7 +57,7 @@ export class CommentsService {
     updateCommentDto: UpdateCommentDto,
   ): Promise<Comment> {
     let comment = await this.findOne(id);
-    comment = { ...comment, ...updateCommentDto };
+    comment = { ...comment, ...(updateCommentDto || {}) };
 
     return this.commentsRepository.save(comment);
   }

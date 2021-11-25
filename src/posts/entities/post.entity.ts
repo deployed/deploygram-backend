@@ -35,11 +35,11 @@ export class Post {
   @Column()
   createdAt: Date;
 
-  @ApiProperty({ isArray: true })
-  @OneToMany(() => Like, (like) => like.postId)
+  @ApiProperty()
+  @OneToMany(() => Like, (like) => like.post)
   likes: Like[];
 
-  @ApiProperty({ isArray: true })
-  @OneToMany(() => Comment, (comment) => comment.postId)
+  @ApiProperty()
+  @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];
 }
