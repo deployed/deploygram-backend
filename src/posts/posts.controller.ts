@@ -16,6 +16,8 @@ import { join } from 'path';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Comment } from 'src/comments/entities/comment.entity';
+import { Like } from 'src/likes/entities/like.entity';
 
 @Controller('posts')
 export class PostsController {
@@ -58,5 +60,15 @@ export class PostsController {
   getFile(@Param('filename') filename: string): StreamableFile {
     const file = createReadStream(join('./uploads/posts/images', filename));
     return new StreamableFile(file);
+  }
+
+  @Get(':id/comments')
+  getPostComments(@Param('id') id: string): Promise<Comment[]> {
+    return this.postsService.getPostComments(id);
+  }
+
+  @Get(':id/likes')
+  getPostLikes(@Param('id') id: string): Promise<Like[]> {
+    return this.postsService.getPostLikes(id);
   }
 }

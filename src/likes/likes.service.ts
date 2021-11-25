@@ -5,6 +5,7 @@ import { CreateLikeDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
 import { Like } from './entities/like.entity';
 import { Post } from 'src/posts/entities/post.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class LikesService {
@@ -13,16 +14,24 @@ export class LikesService {
     private readonly likesRepository: Repository<Like>,
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async create(createLikeDto: CreateLikeDto): Promise<Like> {
     const like = this.likesRepository.create(createLikeDto);
-    const { postId } = createLikeDto;
-    let post = await this.postsRepository.findOne(postId);
-    post = { ...post, likes: [like, ...post.likes] };
+    const { postId, userId } = createLikeDto;
 
+    let post = await this.postsRepository.findOne(postId);
+    post = { ...post, likes: [like, ...(post.likes || [])] };
     this.postsRepository.update(postId, post);
     this.postsRepository.save(post);
+
+    let user = await this.usersRepository.findOne(userId);
+    user = { ...user, likes: [like, ...(user.likes || [])] };
+    this.usersRepository.update(userId, user);
+    this.usersRepository.save(user);
+
     return this.likesRepository.save(like);
   }
 
@@ -41,7 +50,7 @@ export class LikesService {
 
   async update(id: string, updateLikeDto: UpdateLikeDto): Promise<Like> {
     let like = await this.findOne(id);
-    like = { ...like, ...updateLikeDto };
+    like = { ...like, ...(updateLikeDto || {}) };
 
     return this.likesRepository.save(like);
   }
