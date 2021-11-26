@@ -9,7 +9,7 @@ module.exports = {
   synchronize: false,
   entities: ['dist/**/*.entity.js'],
   migrationsTableName: 'postgres',
-  migrations: ['migration/*.ts'],
+  migrations: ['migration/*.js'],
   cli: {
     migrationsDir: 'migration'
   }
