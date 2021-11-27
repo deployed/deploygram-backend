@@ -1,15 +1,22 @@
-version: '3.7'
+version: '3.3'
 services:
     postgres:
         image: postgres:12
         restart: always
+        volumes:
+            - pgdata:/var/lib/postgresql/data/
         environment:
           - POSTGRES_USER=postgres
           - POSTGRES_PASSWORD=postgres
         ports:
           - '5438:5432'
     deploygram:
-        build: .
+        # REMEBER to build before with tag build:
+        # docker build . -t deploygram-backend_deploygram:2
+        image: deploygram-backend_deploygram:2
+        restart: on-failure
+        volumes:
+            - uploads:/usr/src/app/uploads
         environment:
           - POSTGRES_HOST=postgres
           - POSTGRES_USER=postgres
@@ -18,3 +25,7 @@ services:
           - POSTGRES_PORT=5432
         ports:
           - '8000:8000'
+
+volumes:
+    pgdata:
+    uploads:
