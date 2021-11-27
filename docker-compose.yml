@@ -9,7 +9,7 @@ services:
         ports:
           - '5438:5432'
     deploygram:
-        image: test1
+        build: .
         environment:
           - POSTGRES_HOST=postgres
           - POSTGRES_USER=postgres
