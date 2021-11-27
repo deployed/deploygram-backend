@@ -13,7 +13,7 @@ services:
     deploygram:
         # REMEBER to build before with tag build:
         # docker build . -t deploygram-backend_deploygram:2
-        image: deploygram-backend_deploygram:2
+        image: deploygram-backend_deploygram:5
         restart: on-failure
         volumes:
             - uploads:/usr/src/app/uploads
