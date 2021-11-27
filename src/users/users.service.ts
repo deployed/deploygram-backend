@@ -53,7 +53,7 @@ export class UsersService {
   async getUserPosts(userId: string): Promise<Post[]> {
     return this.postsRepository
       .createQueryBuilder('post')
-      .where('post.userId LIKE :userId', { userId })
+      .where('post.userId = :userId', { userId })
       .getMany();
   }
 }
